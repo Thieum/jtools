@@ -3064,7 +3064,9 @@ function Mask() {
 
             d = d[0].split('-');
 
-            if (d[0] && d[1] && d[2] && d[0] > 0 && d[1] > 0 && d[1] < 13 && d[2] > 0 && d[2] < 32) {
+            let day = new Date(d[0], d[1], 0).getDate();
+
+            if (d[0] && d[1] && d[2] && d[0] > 0 && d[1] > 0 && d[1] < 13 && d[2] > 0 && d[2] <= day) {
 
                 // Data
                 o.data = [d[0], d[1], d[2], h, m, s];
@@ -3181,6 +3183,7 @@ function Mask() {
 }
 
 /* harmony default export */ var mask = (Mask());
+
 ;// CONCATENATED MODULE: ./src/plugins/calendar.js
 
 
@@ -3405,16 +3408,14 @@ function Calendar() {
                     } else if (!element || element.classList.contains('jcalendar-disabled')) {
                         var value = obj.options.value
                     } else {
-                        var value = obj.getValue(true);
+                        var value = obj.getValue();
                     }
 
                     obj.setValue(value);
                 } else {
-                    if (obj.options.value) {
-                        let value = obj.options.value;
-                        obj.options.value = '';
-                        obj.setValue(value)
-                    }
+                    let value = obj.options.value || '';
+                    obj.options.value = null;
+                    obj.setValue(value)
                 }
 
                 // Events
@@ -3575,30 +3576,24 @@ function Calendar() {
                 }
             }
 
-            obj.getDays();
-            // Render months
-            if (obj.options.type == 'year-month-picker') {
-                obj.getMonths();
+            if (obj.date) {
+                obj.getDays();
+                // Render months
+                if (obj.options.type == 'year-month-picker') {
+                    obj.getMonths();
+                }
             }
         }
 
-        obj.getValue = function (internal) {
-            if (internal) {
-                if (obj.date) {
-                    if (obj.options.time) {
-                        return helpers.two(obj.date[0]) + '-' + helpers.two(obj.date[1]) + '-' + helpers.two(obj.date[2]) + ' ' + helpers.two(obj.date[3]) + ':' + helpers.two(obj.date[4]) + ':' + helpers.two(0);
-                    } else {
-                        return helpers.two(obj.date[0]) + '-' + helpers.two(obj.date[1]) + '-' + helpers.two(obj.date[2]) + ' ' + helpers.two(0) + ':' + helpers.two(0) + ':' + helpers.two(0);
-                    }
+        obj.getValue = function () {
+            if (obj.date) {
+                if (obj.options.time) {
+                    return helpers.two(obj.date[0]) + '-' + helpers.two(obj.date[1]) + '-' + helpers.two(obj.date[2]) + ' ' + helpers.two(obj.date[3]) + ':' + helpers.two(obj.date[4]) + ':' + helpers.two(0);
                 } else {
-                    return "";
+                    return helpers.two(obj.date[0]) + '-' + helpers.two(obj.date[1]) + '-' + helpers.two(obj.date[2]) + ' ' + helpers.two(0) + ':' + helpers.two(0) + ':' + helpers.two(0);
                 }
             } else {
-                if (obj.options.value) {
-                    return obj.options.value;
-                } else {
-                    return "";
-                }
+                return "";
             }
         }
 
@@ -3989,7 +3984,7 @@ function Calendar() {
 
             // Event
             if (typeof (obj.options.onupdate) == 'function') {
-                obj.options.onupdate(el, obj.getValue(true));
+                obj.options.onupdate(el, obj.getValue());
             }
         }
 
@@ -4097,7 +4092,7 @@ function Calendar() {
 
                 // Event
                 if (typeof (obj.options.onupdate) == 'function') {
-                    obj.options.onupdate(el, obj.getValue(true));
+                    obj.options.onupdate(el, obj.getValue());
                 }
             }
 
@@ -4115,7 +4110,7 @@ function Calendar() {
 
                 // Event
                 if (typeof (obj.options.onupdate) == 'function') {
-                    obj.options.onupdate(el, obj.getValue(true));
+                    obj.options.onupdate(el, obj.getValue());
                 }
             }
 
@@ -4205,7 +4200,7 @@ function Calendar() {
                 // Element
                 el.classList.add('jcalendar-input');
                 // Value
-                el.value = obj.setLabel(obj.getValue(true), obj.options);
+                el.value = obj.setLabel(obj.getValue(), obj.options);
             } else {
                 // Get days
                 obj.getDays();
@@ -8726,6 +8721,10 @@ function Editor() {
         }
 
         obj.addImage = function(src, asSnippet) {
+            if (! obj.options.acceptImages) {
+                return;
+            }
+
             if (! src) {
                 src = '';
             }
@@ -9656,6 +9655,7 @@ function Editor() {
 }
 
 /* harmony default export */ var editor = (Editor());
+
 ;// CONCATENATED MODULE: ./src/plugins/floating.js
 function Floating() {
     var Component = (function (el, options) {
